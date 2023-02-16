@@ -9,6 +9,22 @@ const Person = conn.define('person', {
   }
 });
 
+const Place = conn.define('place', {
+  name: {
+    type: Sequelize.STRING,
+    unique: true,
+    allowNull: false
+  }
+})
+
+const Thing = conn.define('thing', {
+  name: {
+    type: Sequelize.STRING,
+    unique: true,
+    allowNull: false
+  }
+})
+
 const Souvenir = conn.define('souvenir', {
 });
 
@@ -19,7 +35,9 @@ Person.hasMany(Souvenir);
 module.exports = {
   conn,
   Person,
-  Souvenir
+  Souvenir,
+  Place,
+  Thing
 }
 
 
