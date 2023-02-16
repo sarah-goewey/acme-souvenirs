@@ -1,36 +1,117 @@
 const express = require('express');
 const app = express();
 const db = require('./db');
-const { Souvenir, Person, Place, Thing, conn } = db;
+const { Place, Thing, Souvenir, Person, conn } = db;
 
 
+app.get('/', async(req, res, next)=> {
+  try {
+    const people = await Person.findAll();
+    const places = await Place.findAll();
+    const things = await Thing.findAll();
+    const souvenirs = await Souvenir.findAll({include: [Person, Place, Thing] })
+
+    res.send(`
+      <html>
+        <head>
+          <title>Acme Souvenirs</title>
+        </head>
+        <body>
+          <h1>Acme Souvenirs</h1>
+          <h2>People</h2>
+          <ul>
+            ${
+              people.map( person => {
+                return `
+                  <li>
+                    ${ person.name }
+                  </li>
+                `;
+              }).join('')
+            }
+          </ul>
+          <h2>Places</h2>
+          <ul>
+            ${
+              places.map( place => {
+                return `
+                  <li>
+                    ${ place.name }
+                  </li>
+                `;
+              }).join('')
+            }
+          </ul>
+          <h2>Things</h2>
+          <ul>
+            ${
+              things.map( thing => {
+                return `
+                  <li>
+                    ${ thing.name }
+                  </li>
+                `;
+              }).join('')
+            }
+          </ul>
+          <h2>Souvenirs</h2>
+          <ul>
+            ${
+              souvenirs.map ( souvenir => {
+                return `
+                  <li>
+                    ${souvenir.person.name} bought ${souvenir.thing.name} in ${souvenir.place.name}
+                  </li>
+                `
+              }).join('')
+            }
+          </ul>
+        </body>
+      </html>
+    `);
+
+  }
+  catch(ex){
+    next(ex);
+  }
+});
 const port = process.env.PORT || 3000;
 
 app.listen(port, async()=> {
   try {
     console.log(`listening on port ${port}`);
     await conn.sync({ force: true });
-    const [ lucy, moe, larry, ethyl ] = await Promise.all([
+    const [
+      lucy,
+      moe,
+      larry,
+      ethyl,
+      foo,
+      bar,
+      bazz,
+      quq,
+      nyc,
+      paris,
+      london,
+      la
+    ] = await Promise.all([
       Person.create({ name: 'lucy' }),
       Person.create({ name: 'moe' }),
       Person.create({ name: 'larry' }),
       Person.create({ name: 'ethyl' }),
+      Thing.create({ name: 'foo' }),
+      Thing.create({ name: 'bar' }),
+      Thing.create({ name: 'bazz' }),
+      Thing.create({ name: 'quq' }),
+      Place.create({ name: 'NYC' }),
+      Place.create({ name: 'Paris' }),
+      Place.create({ name: 'London' }),
+      Place.create({ name: 'LA' }),
     ]);
 
-    const [nyc, paris, london, tokyo, hat, cup, shirt, mug] = await Promise.all([
-      Place.create({name: 'nyc'}),
-      Place.create({name: 'paris'}),
-      Place.create({name: 'london'}),
-      Place.create({name: 'tokyo'}),
-      Thing.create({name: 'hat'}),
-      Thing.create({name: 'cup'}),
-      Thing.create({name: 'shirt'}),
-      Thing.create({name: 'mug'})
-    ])
-
     await Promise.all([
-      Souvenir.create({ personId: lucy.id }),
-      Souvenir.create( { personId: lucy.id }),
+      Souvenir.create({ personId: lucy.id, thingId: foo.id, placeId: london.id }),
+      Souvenir.create( { personId: lucy.id, thingId: foo.id, placeId: la.id}),
     ]);
   }
   catch(ex){
