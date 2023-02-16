@@ -9,10 +9,17 @@ const Person = conn.define('person', {
   }
 });
 
+const Souvenir = conn.define('souvenir', {
+});
+
+Souvenir.belongsTo(Person);
+Person.hasMany(Souvenir);
+
 
 module.exports = {
   conn,
-  Person
+  Person,
+  Souvenir
 }
 
 

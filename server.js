@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const db = require('./db');
+const { Souvenir, Person, conn } = db;
 
 
 const port = process.env.PORT || 3000;
@@ -8,14 +9,18 @@ const port = process.env.PORT || 3000;
 app.listen(port, async()=> {
   try {
     console.log(`listening on port ${port}`);
-    await db.conn.sync({ force: true });
+    await conn.sync({ force: true });
     const [ lucy, moe, larry, ethyl ] = await Promise.all([
-      db.Person.create({ name: 'lucy' }),
-      db.Person.create({ name: 'moe' }),
-      db.Person.create({ name: 'larry' }),
-      db.Person.create({ name: 'ethyl' }),
+      Person.create({ name: 'lucy' }),
+      Person.create({ name: 'moe' }),
+      Person.create({ name: 'larry' }),
+      Person.create({ name: 'ethyl' }),
     ]);
-    console.log(moe.name, moe.id);
+
+    await Promise.all([
+      Souvenir.create({ personId: lucy.id }),
+      Souvenir.create( { personId: lucy.id }),
+    ]);
   }
   catch(ex){
     console.log(ex);
